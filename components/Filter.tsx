@@ -4,7 +4,13 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 
-export default function TaskFilter({ onFilter }: { onFilter: (filters: any) => void }) {
+type FilterType = {
+  priority: "HIGH" | "MEDIUM" | "LOW" | null;
+  completed: boolean | null;
+};
+
+export default function TaskFilter({ onFilter }: { onFilter: (filters: FilterType) => void }) {
+
   const [priority, setPriority] = useState<"HIGH" | "MEDIUM" | "LOW" | null>(null);
   const [completed, setCompleted] = useState<boolean | null>(null);
   const [isApplyDisabled, setIsApplyDisabled] = useState(true);
