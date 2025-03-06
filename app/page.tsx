@@ -2,11 +2,7 @@ import { getTodo } from "@/actions/todoActions";
 import Tasks from "@/components/Tasks";
 import { auth } from "@clerk/nextjs/server";
 
-interface PageProps {
-  searchParams?: Record<string, string | undefined>;
-}
-
-export default async function Home({ searchParams }: PageProps) {
+export default async function Home({ searchParams }: { searchParams?: Record<string, string | undefined> }) {
   const { userId } = await auth();
   const page = Number(searchParams?.page) || 1;
 
