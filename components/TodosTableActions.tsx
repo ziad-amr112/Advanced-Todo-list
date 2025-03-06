@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Trash, Loader2 } from "lucide-react"; // استيراد أيقونة اللودر
+import { Trash, Loader2 } from "lucide-react"; 
 import ConfirmDeleteDialog from "@/components/DeleteModel";
 import { deleteTodo } from "@/actions/todoActions";
 import { TableCell } from "./ui/table";
