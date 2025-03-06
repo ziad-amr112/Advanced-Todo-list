@@ -28,7 +28,6 @@ const ConfirmDeleteDialog = ({
   onConfirm,
   onCancel, 
   triggerIcon,
-  className,
 }: ConfirmDeleteDialogProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);

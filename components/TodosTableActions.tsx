@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {  Trash } from "lucide-react";
+import { Trash, Loader2 } from "lucide-react"; // استيراد أيقونة اللودر
 import ConfirmDeleteDialog from "@/components/DeleteModel";
 import { deleteTodo } from "@/actions/todoActions";
 import { TableCell } from "./ui/table";
@@ -19,14 +19,16 @@ export default function TodosActions({ todo }: { todo: ITodos }) {
 
   return (
     <TableCell className="flex items-center space-x-2 justify-end">
-     <EditToDoForm todo={todo}/>
+      <EditToDoForm todo={todo} />
 
       <ConfirmDeleteDialog
         title="Delete Todo?"
         description="Are you sure you want to delete this task? This action cannot be undone."
         onConfirm={handleDelete}
-        triggerIcon={<Trash size={16} />}
-        className="p-2"
+        triggerIcon={
+          loading ? <Loader2 size={16} className="animate-spin" /> : <Trash size={16} />
+        }
+        className={`p-2 ${loading ? "opacity-50 pointer-events-none" : ""}`}
       />
     </TableCell>
   );
