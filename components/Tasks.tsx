@@ -14,28 +14,35 @@ interface TasksProps {
   userId: string | null;
   totalTodos: number;
   currentPage: number;
+  refetchTodos: () => void;
 }
 
-const Tasks = ({ todos, userId, totalTodos, currentPage }: TasksProps) => {
-  const [filteredTodos, setFilteredTodos] = useState<ITodos[]>(todos);
-  const [loading, setLoading] = useState<boolean>(true);
+const Tasks = ({ todos, userId, totalTodos, currentPage, refetchTodos }: TasksProps) => {
+  const [filteredTodos, setFilteredTodos] = useState<ITodos[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);  
   const router = useRouter();
   const pageSize = 10;
 
   const totalPages = Math.ceil(totalTodos / pageSize);
 
-  const handlePageChange = (page: number) => {
-    setLoading(true);
-    router.push(`?page=${page}`);
-  };
-
   useEffect(() => {
-    setFilteredTodos(todos);
-    setLoading(false); 
+    if (todos.length > 0) {
+      setFilteredTodos(todos);  
+      setLoading(false);  
+    }
   }, [todos]);
 
+  const handlePageChange = (page: number) => {
+    if (page !== currentPage) {
+      setLoading(true);  
+      router.push(`?page=${page}`);
+      refetchTodos()
+    }
+  };
+
   const onFilterChange = (filters: { priority: string | null; completed: boolean | null }) => {
-    let filtered = [...todos];
+    setLoading(true); 
+    let filtered = todos;
 
     if (filters.priority) {
       filtered = filtered.filter(todo => todo.priority === filters.priority);
@@ -46,22 +53,22 @@ const Tasks = ({ todos, userId, totalTodos, currentPage }: TasksProps) => {
     }
 
     setFilteredTodos(filtered);
+    setLoading(false);  
+    refetchTodos();
   };
 
   return (
     <main className="container">
       {userId && <AddToDoForm userId={userId} todos={todos} />}
-      <div className="items-start gap-4">
-        <TaskFilter onFilter={onFilterChange} />
-        {loading ? <TasksSkeleton /> : <TodosTable todos={filteredTodos} totalTodos={totalTodos} />}
-      </div>
+      <TaskFilter onFilter={onFilterChange} />
+      
+      {loading ? (
+        <TasksSkeleton />  
+      ) : (
+        <TodosTable userId={userId} currentPage={currentPage} todos={filteredTodos} totalTodos={totalTodos} />
+      )}
 
-      {/* Pagination Controls */}
-      <TasksPagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-      />
+      <TasksPagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
     </main>
   );
 };

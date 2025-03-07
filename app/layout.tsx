@@ -18,17 +18,18 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="geist_e531 antialiased flex h-screen" suppressHydrationWarning>
         <ClerkProvider>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
-              <div className="flex-1 flex flex-col">
-                <Nav />
-                <main className="p-6">{children}</main>
-              </div>
-            </ThemeProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange>
+            <div className="flex-1 flex flex-col">
+              <Nav />
+              <main className="p-6">
+                {children}
+              </main>
+            </div>
+          </ThemeProvider>
         </ClerkProvider>
       </body>
     </html>

@@ -30,6 +30,7 @@ import { useEffect, useState } from "react";
 import { ITodos } from "@/interfaces";
 import ConfirmDeleteDialog from "./DeleteModel";
 import PrioritySelector from "./Priority";
+import { useTodoStore } from "@/app/store/todoStore";
 
 interface AddToDoFormProps {
   todos: ITodos[];
@@ -37,6 +38,7 @@ interface AddToDoFormProps {
 }
 
 const AddToDoForm = ({ todos, userId }: AddToDoFormProps) => {
+  const { addTodoUI, setTodos } = useTodoStore();
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -44,22 +46,39 @@ const AddToDoForm = ({ todos, userId }: AddToDoFormProps) => {
     if (!loading) setOpen(false);
   }, [loading]);
 
-  const onSubmit = async ({
-    title,
-    body,
-    completed,
-    priority,
-  }: TodoFormValues) => {
+  const onSubmit = async (data: TodoFormValues) => {
     setLoading(true);
-    await createTodo({ title, body, completed, userId, priority });
-    setLoading(false);
-    form.reset(defaultValues);
+
+    try {
+      const newTodo = await createTodo({
+        title: data.title,
+        body: data.body,
+        completed: data.completed,
+        userId,
+        priority: data.priority,
+      });
+
+      if (newTodo) {
+        addTodoUI(newTodo);
+      }
+
+      form.reset({
+        title: "",
+        body: "",
+        completed: false,
+      });
+    } catch (error) {
+      console.error("Error adding todo:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const defaultValues: Partial<TodoFormValues> = {
     title: "",
     body: "",
     completed: false,
+    priority: undefined
   };
 
   const form = useForm<TodoFormValues>({
@@ -70,13 +89,14 @@ const AddToDoForm = ({ todos, userId }: AddToDoFormProps) => {
 
   return (
     <div className="mb-4">
-      <div className="flex justify-end gap-2 ">
+      <div className="flex justify-end gap-2">
         {todos.length > 1 && (
           <ConfirmDeleteDialog
             title="Delete All Todos?"
             description="Are you sure you want to delete all tasks? This action cannot be undone."
             onConfirm={async () => {
               await deleteTodos();
+              setTodos([]); 
             }}
             triggerIcon={
               <>
@@ -99,10 +119,7 @@ const AddToDoForm = ({ todos, userId }: AddToDoFormProps) => {
             </DialogHeader>
             <div className="py-4">
               <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-8"
-                >
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                   <FormField
                     control={form.control}
                     name="title"
@@ -136,26 +153,24 @@ const AddToDoForm = ({ todos, userId }: AddToDoFormProps) => {
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name="priority"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Priority</FormLabel>
-                        <PrioritySelector
-                          selectedPriority={
-                            field.value as "HIGH" | "MEDIUM" | "LOW"
-                          }
-                          onSelect={field.onChange}
-                        />
-                        <FormDescription className="text-sm text-gray-500">
-                          Choose a priority level for your task (High, Medium,
-                          Low).
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+            <FormField
+  control={form.control}
+  name="priority"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Priority</FormLabel>
+      <PrioritySelector 
+        selectedPriority={field.value ?? "Select Priority"} 
+        onSelect={field.onChange}
+      />
+      <FormDescription className="text-sm text-gray-500">
+        Choose a priority level for your task (High, Medium, Low).
+      </FormDescription>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+
                   <FormField
                     control={form.control}
                     name="completed"
@@ -169,25 +184,19 @@ const AddToDoForm = ({ todos, userId }: AddToDoFormProps) => {
                               id="completed-checkbox"
                             />
                           </FormControl>
-                          <FormLabel
-                            htmlFor="completed-checkbox"
-                            className="cursor-pointer"
-                          >
+                          <FormLabel htmlFor="completed-checkbox" className="cursor-pointer">
                             Mark as Completed
                           </FormLabel>
                         </div>
                         <FormDescription className="text-sm text-gray-500">
-                          Your to-do item will be uncompleted by default unless
-                          you checked it.
+                          Your to-do item will be uncompleted by default unless you checked it.
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-
                   <Button type="submit" disabled={loading}>
-                    {loading && <Spinner />}
-                    Add Task
+                    {loading ? <Spinner /> : "Add Task"}
                   </Button>
                 </form>
               </Form>

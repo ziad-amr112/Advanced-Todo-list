@@ -3,6 +3,7 @@ export interface ITodos {
     title: string;
     body: string | null;
     completed: boolean;
+    userId?:string | null;
     priority?: "HIGH" | "MEDIUM" | "LOW" | undefined; 
     createdAt?: Date;
 }

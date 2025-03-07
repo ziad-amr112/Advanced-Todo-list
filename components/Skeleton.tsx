@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 export default function TasksSkeleton() {
   return (
-    <div className="p-6 min-h-screen bg-white text-black dark:bg-[#0e0b0b] dark:text-gray-200">
+    <div className="p-6 min-h-screen bg-white  dark:bg-[#0e0b0b] dark:text-gray-200">
       <div className="border rounded-lg p-4 dark:border-gray-700 dark:bg-[#2a2a2a]">
         <Table>
           <TableHeader>

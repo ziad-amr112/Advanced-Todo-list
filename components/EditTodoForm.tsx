@@ -29,57 +29,70 @@ import { useEffect, useState } from "react";
 import { ITodos } from "@/interfaces";
 import { updateTodo } from "@/actions/todoActions";
 import PrioritySelector from "./Priority";
+import { useTodoStore } from "@/app/store/todoStore";
 
 const EditToDoForm = ({ todo }: { todo: ITodos }) => {
+  const { updateTodoUI, fetchTodos } = useTodoStore();
+
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
-  const defaultValues: Partial<TodoFormValues> = {
-    title: todo.title,
-    body: todo.body as string,
-    completed: todo.completed,
-    priority: todo.priority,
-  };
-
   const form = useForm<TodoFormValues>({
     resolver: zodResolver(todoFormSchema),
-    defaultValues,
-    mode: "onChange",
-  });
-
-  useEffect(() => {
-    form.reset({
+    defaultValues: {
       title: todo.title,
       body: todo.body as string,
       completed: todo.completed,
       priority: todo.priority,
-    });
+    },
+    mode: "onChange",
+  });
+
+  useEffect(() => {
+    form.setValue("title", todo.title);
+    form.setValue("body", todo.body as string);
+    form.setValue("completed", todo.completed);
+    form.setValue("priority", todo.priority);
   }, [todo, form]);
 
   const onSubmit = async (data: TodoFormValues) => {
     setLoading(true);
-    await updateTodo({
-      id: todo.id,
-      title: data.title,
-      body: data.body as string,
-      completed: data.completed,
-      priority: data.priority,
-    });
-    setLoading(false);
-    setOpen(false);
-    form.reset(data);
+    try {
+      await updateTodoUI({
+        id: todo.id,
+        title: data.title,
+        body: data.body || "",
+        completed: data.completed,
+        priority: data.priority,
+      });
+
+      await updateTodo({
+        id: todo.id,
+        title: data.title,
+        body: data.body as string,
+        completed: data.completed,
+        priority: data.priority,
+      });
+
+      if (todo.userId) {
+        await fetchTodos(todo.userId, 1);
+      }
+
+      form.reset(data);
+      setOpen(false);
+    } catch (error) {
+      console.error("Error updating todo:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-      <Button className="bg-gray-200 text-white hover:bg-gray-300 p-3 text-sm">
-  <div className="text-gray-600 hover:text-gray-800">
-    <Pen size={12} />
-  </div>
-</Button>
-
-
+        <Button className="bg-gray-200 text-gray-600 hover:bg-gray-300 hover:text-gray-800 p-3 text-sm">
+          <Pen size={12} />
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -168,9 +181,12 @@ const EditToDoForm = ({ todo }: { todo: ITodos }) => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" disabled={loading}>
-                {loading && <Spinner />}
-                Save Change
+              <Button
+                type="submit"
+                disabled={loading}
+                className="flex items-center gap-2"
+              >
+                {loading && <Spinner />} Save Changes
               </Button>
             </form>
           </Form>

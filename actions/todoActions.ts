@@ -18,7 +18,6 @@ export const getTodo = async ({
 }) => {
   if (!userId) return { todos: [], totalTodos: 0 };
 
-  // حساب العدد الكلي للمهام
   const totalTodos = await prisma.todo.count({
     where: { userId },
   });
@@ -48,24 +47,25 @@ export const createTodo = async ({
   title: string;
   completed: boolean;
   body?: string;
-  priority?: "HIGH" | "MEDIUM" | "LOW"
+  priority?: "HIGH" | "MEDIUM" | "LOW";
   userId: string | null;
 }) => {
   if (!userId) {
     throw new Error("userId is required and must be a valid string.");
   }
 
-  await prisma.todo.create({
+  const newTodo = await prisma.todo.create({
     data: {
       title,
       body,
       completed,
-      priority: priority as "HIGH" | "MEDIUM" | "LOW", 
+      priority: priority as "HIGH" | "MEDIUM" | "LOW",
       userId,
     },
   });
 
   revalidatePath("/");
+  return newTodo; 
 };
 
 export const updateTodo = async ({ id, title, body, completed, priority }: ITodos) => {
