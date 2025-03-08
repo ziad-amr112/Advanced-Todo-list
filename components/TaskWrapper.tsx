@@ -3,21 +3,23 @@
 import { getTodo } from "@/actions/todoActions";
 import Tasks from "@/components/Tasks";
 import { useEffect, useCallback, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { useTodoStore } from "@/app/store/todoStore";
+import SearchParamsProvider from "@/components/SearchParamsProvider"; 
 
 interface TaskWrapperProps {
   userId: string | null;
 }
 
 export default function TaskWrapper({ userId }: TaskWrapperProps) {
-  const searchParams = useSearchParams();
-  const pageFromUrl = searchParams ? Number(searchParams.get("page")) : 1; 
-
+  const [pageFromUrl, setPageFromUrl] = useState(1);
   const { todos, setTodos, totalTodos, setTotalTodos } = useTodoStore();
 
+  const handlePageChange = (page: number) => {
+    setPageFromUrl(page);
+  };
+
   const fetchTodos = useCallback(async () => {
-    if (!userId) return; 
+    if (!userId) return;
     try {
       const { todos, totalTodos } = await getTodo({ userId, page: pageFromUrl });
       setTodos(todos);
@@ -30,8 +32,11 @@ export default function TaskWrapper({ userId }: TaskWrapperProps) {
   useEffect(() => {
     fetchTodos();
   }, [fetchTodos]);
+
   return (
     <div suppressHydrationWarning={true} className="flex justify-center">
+      <SearchParamsProvider onPageChange={handlePageChange} />
+
       <Tasks
         todos={todos}
         userId={userId}
