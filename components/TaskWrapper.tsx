@@ -36,7 +36,7 @@ export default function TaskWrapper({ userId }: TaskWrapperProps) {
     if (userId) {
       HandlefetchTodos(currentPage);
     }
-  }, [currentPage, userId,HandlefetchTodos]);
+  }, [currentPage, userId]);
 
   return (
     <div suppressHydrationWarning={true} className="flex justify-center">

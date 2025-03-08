@@ -20,7 +20,6 @@ import {
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious
-              href="#"
               onClick={(e) => {
                 e.preventDefault();
                 if (currentPage > 1) onPageChange(currentPage - 1);
@@ -34,7 +33,6 @@ import {
             return (
               <PaginationItem key={page}>
                 <PaginationLink
-                  href="#"
                   isActive={page === currentPage}
                   onClick={(e) => {
                     e.preventDefault();
@@ -49,7 +47,6 @@ import {
   
           <PaginationItem>
             <PaginationNext
-              href="#"
               onClick={(e) => {
                 e.preventDefault();
                 if (currentPage < totalPages) onPageChange(currentPage + 1);
