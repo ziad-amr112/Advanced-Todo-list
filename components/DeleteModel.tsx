@@ -17,11 +17,12 @@ import { useTodoStore } from "@/app/store/todoStore";
 interface ConfirmDeleteDialogProps {
   title?: string;
   description?: string;
-  onConfirm: () => void;
+  onConfirm: () => Promise<void>;
   onCancel?: () => void;
   triggerIcon: ReactNode;
   className?: string;
-  todoId?: string; 
+  todoId?: string;
+  refetchTodos?: () => Promise<void>; 
 }
 
 const ConfirmDeleteDialog = ({
@@ -30,18 +31,28 @@ const ConfirmDeleteDialog = ({
   onConfirm,
   onCancel,
   triggerIcon,
-  todoId, 
+  refetchTodos,
+  todoId,
 }: ConfirmDeleteDialogProps) => {
-  const { deleteTodoUI } = useTodoStore(); 
+  const { deleteTodoUI } = useTodoStore();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleConfirm = async () => {
-    setIsLoading(true);
-    await onConfirm(); 
-    deleteTodoUI(todoId || ""); 
-    setIsLoading(false);
-    setIsOpen(false);
+    try {
+      setIsLoading(true);
+      await onConfirm();
+      deleteTodoUI(todoId || ""); 
+      if (refetchTodos) {
+        await refetchTodos(); 
+      }
+
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Error in ConfirmDeleteDialog:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCancel = () => {
@@ -54,8 +65,7 @@ const ConfirmDeleteDialog = ({
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="border-gray-500 text-red-400 hover:text-red-500  dark:text-red-300 dark:hover:text-red-400 "
-        >
+          className="border-gray-500 text-red-400 hover:text-red-500  dark:text-red-300 dark:hover:text-red-400 ">
           {triggerIcon}
         </Button>
       </DialogTrigger>

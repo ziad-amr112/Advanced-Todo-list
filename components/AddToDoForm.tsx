@@ -35,9 +35,10 @@ import { useTodoStore } from "@/app/store/todoStore";
 interface AddToDoFormProps {
   todos: ITodos[];
   userId: string | null;
+  refetchTodos: () => Promise<void>;
 }
 
-const AddToDoForm = ({ todos, userId }: AddToDoFormProps) => {
+const AddToDoForm = ({ todos, userId,refetchTodos }: AddToDoFormProps) => {
   const { addTodoUI, setTodos,fetchTodos } = useTodoStore();
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -92,33 +93,37 @@ const AddToDoForm = ({ todos, userId }: AddToDoFormProps) => {
     <div className="mb-4">
       <div className="flex justify-end gap-2">
       {todos.length > 1 && (
-  <ConfirmDeleteDialog
-    title="Delete All Todos?"
-    description="Are you sure you want to delete all tasks? This action cannot be undone."
-    onConfirm={async () => {
-      try {
-        setLoading(true);
-        
-        await deleteTodos(); 
-        setTodos([]); 
-        
-        if (userId) {
-          await fetchTodos(userId, 1);
-        }
-      } catch (error) {
-        console.error("Error deleting all todos:", error);
-      } finally {
-        setLoading(false);
-      }
-    }}
-    triggerIcon={
-      <>
-        Delete All Tasks <Trash size={16} />
-      </>
-    }
-    className="p-2"
-  />
+ <ConfirmDeleteDialog
+ refetchTodos={refetchTodos}
+ title="Delete All Todos?"
+ description="Are you sure you want to delete all tasks? This action cannot be undone."
+ onConfirm={async () => {
+   try {
+     setLoading(true);
+     
+     await deleteTodos(); 
+     setTodos([]); 
+
+     if (userId) {
+       await refetchTodos();
+     }
+
+   } catch (error) {
+     console.error("Error deleting all todos:", error);
+   } finally {
+     setLoading(false);
+   }
+ }}
+ triggerIcon={
+   <>
+     Delete All Tasks <Trash size={16} />
+   </>
+ }
+ className="p-2"
+/>
+
 )}
+
 
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>

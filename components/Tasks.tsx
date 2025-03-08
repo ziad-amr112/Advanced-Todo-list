@@ -14,7 +14,7 @@ interface TasksProps {
   userId: string | null;
   totalTodos: number;
   currentPage: number;
-  refetchTodos: () => void;
+  refetchTodos: () => Promise<void>; 
 }
 
 const Tasks = ({ todos, userId, totalTodos, currentPage, refetchTodos }: TasksProps) => {
@@ -41,6 +41,12 @@ const Tasks = ({ todos, userId, totalTodos, currentPage, refetchTodos }: TasksPr
       refetchTodos();
     }
   };
+
+useEffect(() => {
+  refetchTodos();
+}, [currentPage]);
+
+  
   
   const onFilterChange = (filters: { priority: string | null; completed: boolean | null }) => {
     setLoading(true); 
@@ -56,12 +62,11 @@ const Tasks = ({ todos, userId, totalTodos, currentPage, refetchTodos }: TasksPr
   
     setFilteredTodos(filtered);
     setLoading(false);
-    refetchTodos();
   };
   
   return (
     <main className="container">
-      {userId && <AddToDoForm userId={userId} todos={todos} />}
+      {userId && <AddToDoForm  refetchTodos={refetchTodos} userId={userId} todos={todos} />}
       <TaskFilter onFilter={onFilterChange} />
       
       {loading ? (

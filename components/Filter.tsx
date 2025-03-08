@@ -24,8 +24,10 @@ export default function TaskFilter({ onFilter }: { onFilter: (filters: FilterTyp
       priority: priority ?? null,
       completed: completed ?? null,
     };
+    console.log("Applying Filters:", filters);
     onFilter(filters);
   };
+  
 
   return (
     <div className="w-fit self-start mt-4">
