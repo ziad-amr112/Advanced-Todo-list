@@ -19,16 +19,18 @@ interface TasksProps {
 
 const Tasks = ({ todos, userId, totalTodos, currentPage, refetchTodos }: TasksProps) => {
   const [filteredTodos, setFilteredTodos] = useState<ITodos[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);  
+  const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
   const pageSize = 10;
 
   const totalPages = Math.ceil(totalTodos / pageSize);
 
   useEffect(() => {
-    if (todos.length > 0) {
-      setFilteredTodos(todos);  
-      setLoading(false);  
+    if (todos && todos.length > 0) {
+      setFilteredTodos(todos);
+      setLoading(false); 
+    } else {
+      setLoading(false); 
     }
   }, [todos]);
 
@@ -36,27 +38,27 @@ const Tasks = ({ todos, userId, totalTodos, currentPage, refetchTodos }: TasksPr
     if (page !== currentPage) {
       setLoading(true);  
       router.push(`?page=${page}`);
-      refetchTodos()
+      refetchTodos();
     }
   };
-
+  
   const onFilterChange = (filters: { priority: string | null; completed: boolean | null }) => {
     setLoading(true); 
     let filtered = todos;
-
+  
     if (filters.priority) {
       filtered = filtered.filter(todo => todo.priority === filters.priority);
     }
-
+  
     if (filters.completed !== null) {
       filtered = filtered.filter(todo => todo.completed === filters.completed);
     }
-
+  
     setFilteredTodos(filtered);
-    setLoading(false);  
+    setLoading(false);
     refetchTodos();
   };
-
+  
   return (
     <main className="container">
       {userId && <AddToDoForm userId={userId} todos={todos} />}
@@ -65,10 +67,19 @@ const Tasks = ({ todos, userId, totalTodos, currentPage, refetchTodos }: TasksPr
       {loading ? (
         <TasksSkeleton />  
       ) : (
-        <TodosTable userId={userId} currentPage={currentPage} todos={filteredTodos} totalTodos={totalTodos} />
+        <TodosTable
+          userId={userId}
+          currentPage={currentPage}
+          todos={filteredTodos}
+          totalTodos={totalTodos}
+        />
       )}
 
-      <TasksPagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+      <TasksPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
     </main>
   );
 };

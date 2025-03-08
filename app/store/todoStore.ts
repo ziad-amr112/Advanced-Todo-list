@@ -7,7 +7,7 @@ interface TodoStore {
   totalTodos: number;
   setTodos: (todos: ITodos[]) => void;
   setTotalTodos: (total: number) => void;
-  fetchTodos: (userId: string | null, page: number) => Promise<void>;
+  fetchTodos: (userId: string | null, page: number) => Promise<ITodos[]>;
   addTodoUI: (todo: ITodos) => void;
   updateTodoUI: (updatedTodo: ITodos) => void;
   deleteTodoUI: (id: string) => void;
@@ -25,10 +25,12 @@ export const useTodoStore = create<TodoStore>((set, get) => ({
     const { todos, totalTodos } = await getTodo({ userId: userId ?? null, page });
     set({ 
       todos,
-      totalTodos 
+      totalTodos
     });
+  
+    return todos;  
   },
-
+  
   addTodoUI: (todo) => {
     set((state) => {
       const updatedTodos = [todo, ...state.todos]; 
