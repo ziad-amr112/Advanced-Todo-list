@@ -13,7 +13,7 @@ interface TodoStore {
   deleteTodoUI: (id: string) => void;
 }
 
-export const useTodoStore = create<TodoStore>((set, get) => ({
+export const useTodoStore = create<TodoStore>((set) => ({
   todos: [],
   totalTodos: 0,
 
